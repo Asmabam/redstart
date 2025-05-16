@@ -1994,6 +1994,66 @@ def _(mo):
     return
 
 
+@app.cell
+def _(M, g, l, np):
+
+    def T(x, dx, y, dy, theta, dtheta, z, dz):
+        # Rotation matrices
+        R_theta_minus_pi_over_2 = np.array([
+            [np.sin(theta), -np.cos(theta)],
+            [np.cos(theta),  np.sin(theta)]
+        ])
+    
+        R_theta = np.array([
+            [np.cos(theta), -np.sin(theta)],
+            [np.sin(theta),  np.cos(theta)]
+        ])
+
+        # h
+        hx = x - (l/3) * np.sin(theta)
+        hy = y + (l/3) * np.cos(theta)
+
+        # ḣ
+        dhx = dx - (l/3) * np.cos(theta) * dtheta
+        dhy = dy - (l/3) * np.sin(theta) * dtheta
+
+        # ḧ
+        d2hx = (1/M) * (np.sin(theta) * z)
+        d2hy = -(1/M) * (np.cos(theta) * z) - g
+        d2h = np.array([d2hx, d2hy])
+
+        # h⁽³⁾
+        d3hx = (1/M) * (np.cos(theta) * dtheta * z + np.sin(theta) * dz)
+        d3hy = (1/M) * (np.sin(theta) * dtheta * z - np.cos(theta) * dz)
+        d3h = np.array([d3hx, d3hy])
+
+        return hx, hy, dhx, dhy, d2hx, d2hy, d3hx, d3hy
+
+    return (T,)
+
+
+@app.cell
+def _(T, np):
+    # Exemple de valeurs pour tester :
+    x = 1.0
+    dx = 0.5
+    y = 2.0
+    dy = -0.5
+    theta = np.pi / 6  # 30 degrés
+    dtheta = 0.2
+    z = 1.5
+    dz = 0.3
+
+    # Appel de la fonction
+    resultats = T(x, dx, y, dy, theta, dtheta, z, dz)
+
+    # Affichage
+    noms = ["h_x", "h_y", "dh_x", "dh_y", "d2h_x", "d2h_y", "d3h_x", "d3h_y"]
+    for nom, val in zip(noms, resultats):
+        print(f"{nom} = {val:.4f}")
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(
