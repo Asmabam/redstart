@@ -2101,7 +2101,7 @@ def _(mo):
 def _(M, g, l, np):
     def T_inv(hx, hy, dhx, dhy, ddhx, ddhy, d3hx, d3hy):
     
-        theta = np.arctan2(-ddhy - g, ddhx)
+        theta = np.arctan2(ddhx ,-ddhy - g)
 
         sin_theta = np.sin(theta)
         cos_theta = np.cos(theta)
@@ -2175,11 +2175,11 @@ def _(mo):
     mo.md(
         r"""
     \[
-    \phi = -\theta + \arctan\left(
+    \phi = -\theta - \arctan\left(
     \frac{
-    \sin(\theta) \left(z + \frac{ml \dot{\theta}^2}{3} \right) + \cos(\theta) \left( \frac{ml v_2}{3z} \right)
-    }{
-    \cos(\theta) \left(z + \frac{ml \dot{\theta}^2}{3} \right) - \sin(\theta) \left( \frac{ml v_2}{3z} \right)
+    \sin(\theta) \left(z -\frac{ml \dot{\theta}^2}{3} \right) + \cos(\theta) \left( \frac{ml v_2}{3z} \right)
+    }{-
+    \cos(\theta) \left(z - \frac{ml \dot{\theta}^2}{3} \right) + \sin(\theta) \left( \frac{ml v_2}{3z} \right)
     }
     \right)
     \]
@@ -2253,7 +2253,7 @@ def _(
             a0, a1, a2, a3 = a
             q = a0 + a1 * t + a2 * t**2 + a3 * t**3
             dq = a1 + 2 * a2 * t + 3 * a3 * t**2
-            ddq = 2 * a2 + 3 * a3 * t
+            ddq = 2 * a2 + 6 * a3 * t
             return q, dq, ddq
 
         x, dx, ddx = eval_poly(coeffs["x"], t)
