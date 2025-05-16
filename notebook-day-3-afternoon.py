@@ -2174,6 +2174,107 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
+    \[
+    \phi = -\theta + \arctan\left(
+    \frac{
+    \sin(\theta) \left(z + \frac{ml \dot{\theta}^2}{3} \right) + \cos(\theta) \left( \frac{ml v_2}{3z} \right)
+    }{
+    \cos(\theta) \left(z + \frac{ml \dot{\theta}^2}{3} \right) - \sin(\theta) \left( \frac{ml v_2}{3z} \right)
+    }
+    \right)
+    \]
+
+    """
+    )
+    return
+
+
+@app.cell
+def _(
+    M,
+    T,
+    dtheta0,
+    dthetaf,
+    dx0,
+    dxf,
+    dy0,
+    dyf,
+    dz0,
+    dzf,
+    l,
+    np,
+    theta0,
+    thetaf,
+    x0,
+    xf,
+    y0,
+    yf,
+    z0,
+    zf,
+):
+
+    def cubic_coefficients(
+        x0, dx0, xf, dxf,
+        y0, dy0, yf, dyf,
+        theta0, dtheta0, thetaf, dthetaf,
+        z0, dz0, zf, dzf,
+        T
+    ):
+        def compute_coeffs(q0, dq0, qf, dqf):
+            a0 = q0
+            a1 = dq0
+            a2 = (3 * (qf - q0) - (2 * dq0 + dqf) * T) / (T ** 2)
+            a3 = (2 * (q0 - qf) + (dq0 + dxf) * T) / (T ** 3)
+            return a0, a1, a2, a3
+
+        coeffs_x = compute_coeffs(x0, dx0, xf, dxf)
+        coeffs_y = compute_coeffs(y0, dy0, yf, dyf)
+        coeffs_theta = compute_coeffs(theta0, dtheta0, thetaf, dthetaf)
+        coeffs_z = compute_coeffs(z0, dz0, zf, dzf)
+
+        return {
+            "x": coeffs_x,
+            "y": coeffs_y,
+            "theta": coeffs_theta,
+            "z": coeffs_z
+        }
+
+    def fun(t):
+    
+        coeffs = cubic_coefficients(
+            x0, dx0, xf, dxf,
+            y0, dy0, yf, dyf,
+            theta0, dtheta0, thetaf, dthetaf,
+            z0, dz0, zf, dzf,
+            T
+        )
+
+        def eval_poly(a, t):
+            a0, a1, a2, a3 = a
+            q = a0 + a1 * t + a2 * t**2 + a3 * t**3
+            dq = a1 + 2 * a2 * t + 3 * a3 * t**2
+            ddq = 2 * a2 + 3 * a3 * t
+            return q, dq, ddq
+
+        x, dx, ddx = eval_poly(coeffs["x"], t)
+        y, dy, ddy = eval_poly(coeffs["y"], t)
+        theta, dtheta, ddtheta= eval_poly(coeffs["theta"], t)
+        z, dz, ddz = eval_poly(coeffs["z"], t)
+
+        fx = (np.sin(theta)*(z-M*l*(dtheta**2)/3)) + (np.cos(theta)*(M*l*ddtheta/3))
+        fy = -(np.cos(theta)*(z-M*l*(dtheta**2)/3)) + (np.sin(theta)*(M*l*ddtheta/3))
+        f = np.array([fx, fy])
+        phi=-theta-np.arctan2(fx/fy)
+
+        return x, dx, y, dy, theta, dtheta, z, dz, f, phi
+
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
     ## 🧩 Graphical Validation
 
     Test your `compute` function with
