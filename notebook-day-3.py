@@ -1752,8 +1752,8 @@ def _(mo):
     $$
     \ddot{h} = 
     \begin{bmatrix}
-    -\dfrac{z}{M} \sin(\theta) - \dfrac{2}{3} \, \ell \cos(\theta) \dfrac{v_2}{z} \\
-    -g + \dfrac{z}{M} \cos(\theta) - \dfrac{2}{3} \, \ell \sin(\theta) \dfrac{v_2}{z}
+    -\dfrac{z}{M} \sin(\theta)  \\
+    -g + \dfrac{z}{M} \cos(\theta) 
     \end{bmatrix}
     $$
     """
@@ -1769,21 +1769,20 @@ def _(M, g, l, np):
         h_dot_y = y_dot - (l / 3) * np.sin(theta) * theta_dot
         return np.array([h_dot_x, h_dot_y])
 
-    def compute_h_ddot(theta, z, v2, M, l, g):
+    def compute_h_ddot(theta, z, M, g):
  
-        h_ddot_x = -(np.sin(theta) * z) / M - (2 / 3) * np.cos(theta) * l * v2 / z
-        h_ddot_y = -g + (np.cos(theta) * z) / M - (2 / 3) * np.sin(theta) * l * v2 / z
+        h_ddot_x = -(np.sin(theta) * z) / M
+        h_ddot_y = -g + (np.cos(theta) * z) / M 
         return np.array([h_ddot_x, h_ddot_y])
     # Paramètres d'exemple
     theta = np.pi / 4      
     theta_dot = 1.0        
     x_dot = 2.0            
     y_dot = 1.5           
-    z = 2.0                
-    v2 = 0.5              
+    z = 2.0                            
 
     h_dot = compute_h_dot(theta, theta_dot, x_dot, y_dot, l)
-    h_ddot = compute_h_ddot(theta, z, v2, M, l, g)
+    h_ddot = compute_h_ddot(theta, z, M, g)
 
     print("ḣ =", h_dot)
     print("ḧ =", h_ddot)
