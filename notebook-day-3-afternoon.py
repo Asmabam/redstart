@@ -2194,6 +2194,7 @@ def _(M, T, g, l, np):
     x0, dx0, y0, dy0, theta0, dtheta0, z0, dz0 = 5.0, 0.0, 20.0, -1.0, -np.pi/8, 0.0, -M*g, 0.0,
     xf, dxf, yf, dyf, thetaf, dthetaf, zf, dzf = 0.0, 0.0, 4/3*l, 0.0, 0.0, 0.0, -M*g, 0.0,
     tf = 10.0
+
     def cubic_coefficients(
         x0, dx0, xf, dxf,
         y0, dy0, yf, dyf,
@@ -2313,7 +2314,56 @@ def _(fun, np, plt, tf):
 
 
 @app.cell
-def _():
+def _(FFMpegWriter, FuncAnimation, fun, l, np, plt, tf, tqdm):
+    def _draw_booster(x, y, theta, f, phi, axes):
+        # Corps principal
+        axes.plot([x, x + l*np.sin(theta)], [y, y - l*np.cos(theta)], 'k-', lw=3)
+
+        # Flèche de poussée
+        scale = 0.2
+        fx, fy = f * scale
+        axes.arrow(x, y, fx, fy, head_width=0.2, color='red')
+
+        # Angle phi
+        x_jet = x + l*np.sin(theta)
+        y_jet = y - l*np.cos(theta)
+        phi_length = 1.5
+        axes.arrow(x_jet, y_jet,
+                   phi_length*np.cos(phi),
+                   phi_length*np.sin(phi),
+                   head_width=0.2, color='blue')
+
+    # Fonction principale pour générer la vidéo
+    def video_sim_traj():
+        fig = plt.figure(figsize=(10, 6))
+        axes = plt.gca()
+        fps = 30
+        ts = np.linspace(0.0, tf, int(tf*fps) + 1)
+        output = "sim_traj.mp4"
+
+        def animate(t):
+            x, dx, y, dy, theta, dtheta, z, dz, f, phi = fun(t)
+            axes.clear()
+            _draw_booster(x, y, theta, f, phi, axes)
+            axes.set_xlim(-6, 6)
+            axes.set_ylim(-2, 25)
+            axes.set_aspect("equal")
+            axes.set_xlabel(rf"$t={t:.1f}$")
+            axes.grid(True)
+            pbar.update(1)
+
+        pbar = tqdm(total=len(ts), desc="Generating trajectory animation")
+        anim = FuncAnimation(fig, animate, frames=ts)
+        writer = FFMpegWriter(fps=fps)
+        anim.save(output, writer=writer)
+
+        print()
+        print(f"Animation saved as {output!r}")
+        return output
+
+    # Appel
+    video_sim_traj()
+
     return
 
 
