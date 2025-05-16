@@ -2073,6 +2073,71 @@ def _(mo):
 def _(mo):
     mo.md(
         r"""
+    # Relations inverses pour l’état du booster
+
+    On suppose que \( z < 0 \). En utilisant les dérivées de la sortie \( h \), on peut reconstituer l’état du système.
+
+
+    - \( x = h_x + \frac{\ell}{3} \sin\theta \)
+    - \( y = h_y - \frac{\ell}{3} \cos\theta \)
+
+    - \( \dot{x} = \dot{h}_x + \frac{\ell}{3} \cos\theta \cdot \dot{\theta} \)
+    - \( \dot{y} = \dot{h}_y + \frac{\ell}{3} \sin\theta \cdot \dot{\theta} \)
+
+
+    - \( \theta = \arctan\left(- \frac{ \ddot{h}_x }{ \ddot{h}_y + g } \right) \)
+
+    - \( z = M \cdot \frac{ \ddot{h}_x } { \sin\theta }\)
+
+    - \( \dot{\theta} = \frac{M}{z} \left( \cos\theta \cdot h^{(3)}_x + \sin\theta \cdot h^{(3)}_y \right) \)
+
+    - \( \dot{z} = M \left( \sin\theta \cdot h^{(3)}_x - \cos\theta \cdot h^{(3)}_y \right) \)
+
+    """
+    )
+    return
+
+
+@app.cell
+def _(M, g, l, np):
+
+    def T_inv(hx, hy, dhx, dhy, ddhx, ddhy, d3hx, d3hy):
+    
+        theta = np.arctan2(-ddhy - g, ddhx)
+
+        sin_theta = np.sin(theta)
+        cos_theta = np.cos(theta)
+        z = M * ddhx / sin_theta
+
+
+        dtheta = (M / z) * (cos_theta * d3hx + sin_theta * d3hy)
+
+        dz = M * (sin_theta * d3hx - cos_theta * d3hy)
+
+        x = hx + (l / 3) * sin_theta
+        y = hy - (l / 3) * cos_theta
+
+        dx = dhx + (l / 3) * cos_theta * dtheta
+        dy = dhy + (l / 3) * sin_theta * dtheta
+
+        return {
+            "x": x,
+            "dx": dx,
+            "y": y,
+            "dy": dy,
+            "theta": theta,
+            "dtheta": dtheta,
+            "z": z,
+            "dz": dz
+        }
+
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(
+        r"""
     ## 🧩 Admissible Path Computation
 
     Implement a function
