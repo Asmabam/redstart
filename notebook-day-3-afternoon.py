@@ -2319,11 +2319,6 @@ def _(FFMpegWriter, FuncAnimation, fun, l, np, plt, tf, tqdm):
         # Corps principal
         axes.plot([x, x + l*np.sin(theta)], [y, y - l*np.cos(theta)], 'k-', lw=3)
 
-        # Flèche de poussée
-        scale = 0.2
-        fx, fy = f * scale
-        axes.arrow(x, y, fx, fy, head_width=0.2, color='red')
-
         # Angle phi
         x_jet = x + l*np.sin(theta)
         y_jet = y - l*np.cos(theta)
@@ -2345,7 +2340,7 @@ def _(FFMpegWriter, FuncAnimation, fun, l, np, plt, tf, tqdm):
             axes.clear()
 
             # Tracer le booster et ses flèches
-            _draw_booster(x, y, theta, f, phi+theta, axes)
+            _draw_booster(x, y, theta, f, phi, axes)
 
             # Tracer la base (plateforme d'atterrissage)
             base_width = 4.0  # largeur de la base
