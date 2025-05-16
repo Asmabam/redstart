@@ -1683,37 +1683,40 @@ def _(mo):
 
 @app.cell
 def _(l, np, plt):
+    _l = 1.0  
+    _x, _y = 0.0, 0.0  
 
-    x, y = 0.0, 0.0  
-
-
-    theta_deg = -90.0  
+    theta_deg = 45  # <-- Change this value to update the plot
 
 
     theta_rad = np.deg2rad(theta_deg)
 
+    x_start = _x - l * np.sin(theta_rad)
+    y_start = _y + l * np.cos(theta_rad)
+    x_end = _x + l * np.sin(theta_rad)
+    y_end = _y - l * np.cos(theta_rad)
 
-    x_start = x - l * np.sin(theta_rad)
-    y_start = y + l * np.cos(theta_rad)
-    x_end = x + l * np.sin(theta_rad)
-    y_end = y - l * np.cos(theta_rad)
-
-
-    h_x = x - (l/3) * np.sin(theta_rad)
-    h_y = y + (l/3) * np.cos(theta_rad)
-
+    h_x = _x - (l/3) * np.sin(theta_rad)
+    h_y = _y + (l/3) * np.cos(theta_rad)
 
     plt.figure(figsize=(8, 6))
     plt.plot([x_start, x_end], [y_start, y_end], 'k-', linewidth=3, label="Booster")
-    plt.plot(x, y, 'bo', markersize=10, label="Center (x, y)")
+    plt.plot(_x, _y, 'bo', markersize=10, label="Center (x, y)")
     plt.plot(h_x, h_y, 'ro', markersize=8, label="Point h")
 
-
     plt.text(h_x, h_y, '  h', fontsize=12, color='red')
-    plt.text(x, y, '  (x, y)', fontsize=12, color='blue')
+    plt.text(_x, _y, '  (x, y)', fontsize=12, color='blue')
 
 
     plt.title(f"Booster Geometry (θ = {theta_deg}°)")
+    plt.xlabel("x")
+    plt.ylabel("y")
+    plt.grid(True)
+    plt.axis('equal')  # Critical fix: Ensures 1:1 aspect ratio
+    plt.xlim(-1.5*l, 1.5*l)  # Adjusted limits for visibility
+    plt.ylim(-1.5*l, 1.5*l)
+    plt.legend()
+    plt.show()
     return
 
 
