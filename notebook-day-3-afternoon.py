@@ -2327,13 +2327,12 @@ def _(FFMpegWriter, FuncAnimation, fun, l, np, plt, tf, tqdm):
         # Angle phi
         x_jet = x + l*np.sin(theta)
         y_jet = y - l*np.cos(theta)
-        phi_length = 1.5
+        phi_length = 1
         axes.arrow(x_jet, y_jet,
                    phi_length*np.cos(phi),
                    phi_length*np.sin(phi),
                    head_width=0.2, color='blue')
 
-    # Fonction principale pour générer la vidéo
     def video_sim_traj():
         fig = plt.figure(figsize=(10, 6))
         axes = plt.gca()
@@ -2344,7 +2343,24 @@ def _(FFMpegWriter, FuncAnimation, fun, l, np, plt, tf, tqdm):
         def animate(t):
             x, dx, y, dy, theta, dtheta, z, dz, f, phi = fun(t)
             axes.clear()
-            _draw_booster(x, y, theta, f, phi, axes)
+
+            # Tracer le booster et ses flèches
+            _draw_booster(x, y, theta, f, phi+theta, axes)
+
+            # Tracer la base (plateforme d'atterrissage)
+            base_width = 4.0  # largeur de la base
+            base_x = 0.0      # position horizontale de la base (centrée à x=0)
+            base_y = 0.0      # position verticale de la base (sol)
+
+            axes.plot(
+                [base_x - base_width/2, base_x + base_width/2],
+                [base_y, base_y],
+                color='black',
+                linewidth=4,
+                solid_capstyle='round'
+            )
+
+            # Configuration de la scène
             axes.set_xlim(-6, 6)
             axes.set_ylim(-2, 25)
             axes.set_aspect("equal")
@@ -2361,9 +2377,8 @@ def _(FFMpegWriter, FuncAnimation, fun, l, np, plt, tf, tqdm):
         print(f"Animation saved as {output!r}")
         return output
 
-    # Appel
+    # Appel de la fonction principale pour générer la vidéo
     video_sim_traj()
-
     return
 
 
