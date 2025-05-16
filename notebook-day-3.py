@@ -1729,6 +1729,68 @@ def _(mo):
     return
 
 
+@app.cell
+def _(mo):
+    mo.md(
+        r"""
+    # Expressions des dérivées de h
+
+    ## Expression de $\dot{h}$
+
+    $$
+    \dot{h} = 
+    \begin{bmatrix}
+    \dot{x} - \dfrac{\ell}{3} \cos(\theta) \, \dot{\theta} \\
+    \dot{y} - \dfrac{\ell}{3} \sin(\theta) \, \dot{\theta}
+    \end{bmatrix}
+    $$
+
+    ---
+
+    ## Expression de $\ddot{h}$ 
+
+    $$
+    \ddot{h} = 
+    \begin{bmatrix}
+    -\dfrac{z}{M} \sin(\theta) - \dfrac{2}{3} \, \ell \cos(\theta) \dfrac{v_2}{z} \\
+    -g + \dfrac{z}{M} \cos(\theta) - \dfrac{2}{3} \, \ell \sin(\theta) \dfrac{v_2}{z}
+    \end{bmatrix}
+    $$
+    """
+    )
+    return
+
+
+@app.cell
+def _(M, g, l, np):
+    def compute_h_dot(theta, theta_dot, x_dot, y_dot, l):
+  
+        h_dot_x = x_dot - (l / 3) * np.cos(theta) * theta_dot
+        h_dot_y = y_dot - (l / 3) * np.sin(theta) * theta_dot
+        return np.array([h_dot_x, h_dot_y])
+
+    def compute_h_ddot(theta, z, v2, M, l, g):
+ 
+        h_ddot_x = -(np.sin(theta) * z) / M - (2 / 3) * np.cos(theta) * l * v2 / z
+        h_ddot_y = -g + (np.cos(theta) * z) / M - (2 / 3) * np.sin(theta) * l * v2 / z
+        return np.array([h_ddot_x, h_ddot_y])
+    # Paramètres d'exemple
+    theta = np.pi / 4      
+    theta_dot = 1.0        
+    x_dot = 2.0            
+    y_dot = 1.5           
+    z = 2.0                
+    v2 = 0.5              
+
+    h_dot = compute_h_dot(theta, theta_dot, x_dot, y_dot, l)
+    h_ddot = compute_h_ddot(theta, z, v2, M, l, g)
+
+    print("ḣ =", h_dot)
+    print("ḧ =", h_ddot)
+
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(
