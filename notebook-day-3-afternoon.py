@@ -2190,29 +2190,10 @@ def _(mo):
 
 
 @app.cell
-def _(
-    M,
-    T,
-    dtheta0,
-    dthetaf,
-    dx0,
-    dxf,
-    dy0,
-    dyf,
-    dz0,
-    dzf,
-    l,
-    np,
-    theta0,
-    thetaf,
-    x0,
-    xf,
-    y0,
-    yf,
-    z0,
-    zf,
-):
-
+def _(M, T, g, l, np):
+    x0, dx0, y0, dy0, theta0, dtheta0, z0, dz0 = 5.0, 0.0, 20.0, -1.0, -np.pi/8, 0.0, -M*g, 0.0,
+    xf, dxf, yf, dyf, thetaf, dthetaf, zf, dzf = 0.0, 0.0, 4/3*l, 0.0, 0.0, 0.0, -M*g, 0.0,
+    tf = 10.0
     def cubic_coefficients(
         x0, dx0, xf, dxf,
         y0, dy0, yf, dyf,
@@ -2223,8 +2204,8 @@ def _(
         def compute_coeffs(q0, dq0, qf, dqf):
             a0 = q0
             a1 = dq0
-            a2 = (3 * (qf - q0) - (2 * dq0 + dqf) * T) / (T ** 2)
-            a3 = (2 * (q0 - qf) + (dq0 + dxf) * T) / (T ** 3)
+            a2 = (3 * (qf - q0) - (2 * dq0 + dqf) * tf) / (tf ** 2)
+            a3 = (2 * (q0 - qf) + (dq0 + dxf) * tf) / (tf ** 3)
             return a0, a1, a2, a3
 
         coeffs_x = compute_coeffs(x0, dx0, xf, dxf)
@@ -2264,11 +2245,11 @@ def _(
         fx = (np.sin(theta)*(z-M*l*(dtheta**2)/3)) + (np.cos(theta)*(M*l*ddtheta/3))
         fy = -(np.cos(theta)*(z-M*l*(dtheta**2)/3)) + (np.sin(theta)*(M*l*ddtheta/3))
         f = np.array([fx, fy])
-        phi=-theta-np.arctan2(fx/fy)
+        phi=-theta-np.arctan2(fx,fy)
 
         return x, dx, y, dy, theta, dtheta, z, dz, f, phi
 
-    return
+    return fun, tf
 
 
 @app.cell(hide_code=True)
@@ -2286,6 +2267,53 @@ def _(mo):
     Make the graph of the relevant variables as a function of time, then make a video out of the same result. Comment and iterate if necessary!
     """
     )
+    return
+
+
+@app.cell
+def _(fun, np, plt, tf):
+
+    ts = np.linspace(0, tf, 500)
+    xs, dxs, ys, dys, thetas, dthetas, zs, dzs, fs, phis = [], [], [], [], [], [], [], [], [], []
+
+    # Calcul des valeurs à chaque instant t
+    for t in ts:
+        _x, _dx, _y, _dy, _theta, _dtheta, _z, _dz, f, phi = fun(t)
+        xs.append(_x)
+        dxs.append(_dx)
+        ys.append(_y)
+        dys.append(_dy)
+        thetas.append(_theta)
+        dthetas.append(_dtheta)
+        zs.append(_z)
+        dzs.append(_dz)
+        fs.append(f)
+        phis.append(phi)
+
+    fs = np.array(fs)
+    fxs, fys = fs[:, 0], fs[:, 1]
+
+    # === AFFICHAGE DES COURBES ===
+    fig, axs = plt.subplots(4, 2, figsize=(12, 10), sharex=True)
+    axs = axs.ravel()
+
+    axs[0].plot(ts, xs); axs[0].set_ylabel("x(t)")
+    axs[1].plot(ts, dxs); axs[1].set_ylabel("dx(t)")
+    axs[2].plot(ts, ys); axs[2].set_ylabel("y(t)")
+    axs[3].plot(ts, dys); axs[3].set_ylabel("dy(t)")
+    axs[4].plot(ts, thetas); axs[4].set_ylabel("theta(t)")
+    axs[5].plot(ts, dthetas); axs[5].set_ylabel("dtheta(t)")
+    axs[6].plot(ts, fxs, label="fx"); axs[6].plot(ts, fys, label="fy"); axs[6].set_ylabel("forces"); axs[6].legend()
+    axs[7].plot(ts, phis); axs[7].set_ylabel("phi(t)"); axs[7].set_xlabel("temps (s)")
+
+    plt.tight_layout()
+    plt.suptitle("Évolution des variables dans le temps", y=1.02)
+    plt.show()
+    return
+
+
+@app.cell
+def _():
     return
 
 
