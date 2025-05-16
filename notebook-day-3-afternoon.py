@@ -1996,7 +1996,6 @@ def _(mo):
 
 @app.cell
 def _(M, g, l, np):
-
     def T(x, dx, y, dy, theta, dtheta, z, dz):
         # Rotation matrices
         R_theta_minus_pi_over_2 = np.array([
@@ -2100,7 +2099,6 @@ def _(mo):
 
 @app.cell
 def _(M, g, l, np):
-
     def T_inv(hx, hy, dhx, dhy, ddhx, ddhy, d3hx, d3hy):
     
         theta = np.arctan2(-ddhy - g, ddhx)
